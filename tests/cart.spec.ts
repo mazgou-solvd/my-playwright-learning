@@ -2,13 +2,14 @@ import { test, expect } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage';
 import { InventoryPage } from '../pages/InventoryPage';
 import { CartPage } from '../pages/CartPage';
+import { users } from '../test-data/users';
 
 test.describe('Cart tests', () => {
 
   test.beforeEach(async ({ page }) => {
     const loginPage = new LoginPage(page);
     await loginPage.open();
-    await loginPage.login('standard_user', 'secret_sauce');
+    await loginPage.login(users.standard.username, users.standard.password);
   });
 
   test('user can add two products and verify badge count', async ({ page }) => {
