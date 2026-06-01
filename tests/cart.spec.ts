@@ -1,25 +1,31 @@
 import { test, expect } from '@playwright/test';
+import { LoginPage } from '../pages/LoginPage';
+import { InventoryPage } from '../pages/InventoryPage';
+import { CartPage } from '../pages/CartPage';
 
 test.describe('Cart tests', () => {
 
   test.beforeEach(async ({ page }) => {
-    await page.goto('https://www.saucedemo.com');
-    await page.getByPlaceholder('Username').fill('standard_user');
-    await page.getByPlaceholder('Password').fill('secret_sauce');
-    await page.getByRole('button', { name: 'Login' }).click();
+    const loginPage = new LoginPage(page);
+    await loginPage.open();
+    await loginPage.login('standard_user', 'secret_sauce');
   });
 
   test('user can add two products and verify badge count', async ({ page }) => {
-    await page.locator('[data-test="add-to-cart-sauce-labs-backpack"]').click();
-    await page.locator('[data-test="add-to-cart-sauce-labs-bike-light"]').click();
-    await expect(page.locator('[data-test="shopping-cart-badge"]')).toHaveText('2');
+    const inventoryPage = new InventoryPage(page);
+    await inventoryPage.addToCart('sauce-labs-backpack');
+    await inventoryPage.addToCart('sauce-labs-bike-light');
+    await expect(inventoryPage.cartBadge).toHaveText('2');
   });
 
   test('user can remove one product and verify cart updates', async ({ page }) => {
-    await page.locator('[data-test="add-to-cart-sauce-labs-backpack"]').click();
-    await page.locator('[data-test="add-to-cart-sauce-labs-bike-light"]').click();
-    await page.locator('[data-test="remove-sauce-labs-backpack"]').click();
-    await expect(page.locator('[data-test="shopping-cart-badge"]')).toHaveText('1');
+    const inventoryPage = new InventoryPage(page);
+    const cartPage = new CartPage(page);
+    await inventoryPage.addToCart('sauce-labs-backpack');
+    await inventoryPage.addToCart('sauce-labs-bike-light');
+    await inventoryPage.goToCart();
+    await cartPage.removeItem('sauce-labs-backpack');
+    await expect(inventoryPage.cartBadge).toHaveText('1');
   });
 
 });
